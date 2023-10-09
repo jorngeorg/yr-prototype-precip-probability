@@ -10,6 +10,7 @@
 
     const SHOW_INTERVALS = false
     const SHOW_DAILY_TEMPS = true
+    const SHOW_SUMMARY = false
 
     const INTERVALS = [
         {
@@ -323,88 +324,90 @@
         {format(parseISO(forecast.properties.timeseries[0].time), 'd. MMMM', {locale: nb})} – {format(parseISO(forecast.properties.timeseries[20].time), 'd. MMMM', {locale: nb})}
     </h1>
     <div class="">   
-        <div class="p-4 bg-white rounded-xl grid gap-4 border border-slate-200 ">
-            <div class="font-medium mb-2">Oppsummering</div>
+        {#if SHOW_SUMMARY}            
+            <div class="p-4 bg-white rounded-xl grid gap-4 border border-slate-200 ">
+                <div class="font-medium mb-2">Oppsummering</div>
 
-            <div class="border-b border-b-slate-200 mb-2 hidden md:flex justify-evenly gap-2">
-                <div class="flex flex-1 justify-start">
-                    <h4 class="text-sm text-slate-500">Periode</h4>
+                <div class="border-b border-b-slate-200 mb-2 hidden md:flex justify-evenly gap-2">
+                    <div class="flex flex-1 justify-start">
+                        <h4 class="text-sm text-slate-500">Periode</h4>
+                    </div>
+                    <div class="flex flex-1 justify-start">
+                        <h4 class="text-sm text-slate-500">Lav/høy temperatur</h4>
+                    </div>
+                    <div class="flex flex-1 justify-start">
+                        <h4 class="text-sm text-slate-500">Sjanse for frost</h4>
+                    </div>
+                    <div class="flex flex-1 justify-start">
+                        <h4 class="text-sm text-slate-500">Nedbør (min/forventet/maks)</h4>
+                    </div>
                 </div>
-                <div class="flex flex-1 justify-start">
-                    <h4 class="text-sm text-slate-500">Lav/høy temperatur</h4>
-                </div>
-                <div class="flex flex-1 justify-start">
-                    <h4 class="text-sm text-slate-500">Sjanse for frost</h4>
-                </div>
-                <div class="flex flex-1 justify-start">
-                    <h4 class="text-sm text-slate-500">Nedbør (min/forventet/maks)</h4>
-                </div>
-            </div>
 
-            
-            <div class="flex gap-2">
-            
-                <!-- Periode -->            
-                <div class="flex flex-col gap-6 flex-1 text-slate-500 text-sm">
-                    {#each WEEKLY_SUMMARY_INDEXES as w }
-                        <div>
-                            { 
-                                format(parseISO(forecast.properties.timeseries[w].time), 'd. MMM', {locale: nb})
-                            }
-                            –
-                            { 
-                                format(add(parseISO(forecast.properties.timeseries[w].time), {weeks: 1}), 'd. MMM', {locale: nb})
-                            }
-                        </div>
-                    {/each}
-                </div>
                 
-                <!-- Temp -->
-                <div class="flex flex-col w-full justify-between gap-6 flex-1"> 
-                    {#each weeklyTempSummary as w, idx}
-                        <div class="flex gap-3 items-center">
-                            <div class="text-sm font-medium text-red-500">
-                                {Math.round(w.low)}°
+                <div class="flex gap-2">
+                
+                    <!-- Periode -->            
+                    <div class="flex flex-col gap-6 flex-1 text-slate-500 text-sm">
+                        {#each WEEKLY_SUMMARY_INDEXES as w }
+                            <div>
+                                { 
+                                    format(parseISO(forecast.properties.timeseries[w].time), 'd. MMM', {locale: nb})
+                                }
+                                –
+                                { 
+                                    format(add(parseISO(forecast.properties.timeseries[w].time), {weeks: 1}), 'd. MMM', {locale: nb})
+                                }
                             </div>
-                            <div class="bg-slate-100  border border-slate-300 rounded-full relative overflow-hidden h-3" style={`width: ${WEEKLY_SUMMARY_BAR_HEIGHT}px;`}>
-                                <div style={`left: ${w.bottom}px; right: ${w.top}px;`} class="bg-red-500 h-full rounded-full absolute"></div>
+                        {/each}
+                    </div>
+                    
+                    <!-- Temp -->
+                    <div class="flex flex-col w-full justify-between gap-6 flex-1"> 
+                        {#each weeklyTempSummary as w, idx}
+                            <div class="flex gap-3 items-center">
+                                <div class="text-sm font-medium text-red-500">
+                                    {Math.round(w.low)}°
+                                </div>
+                                <div class="bg-slate-100  border border-slate-300 rounded-full relative overflow-hidden h-3" style={`width: ${WEEKLY_SUMMARY_BAR_HEIGHT}px;`}>
+                                    <div style={`left: ${w.bottom}px; right: ${w.top}px;`} class="bg-red-500 h-full rounded-full absolute"></div>
+                                </div>
+                                <div class="text-sm font-medium text-red-500">
+                                    {Math.round(w.high)}°
+                                </div>
                             </div>
-                            <div class="text-sm font-medium text-red-500">
-                                {Math.round(w.high)}°
-                            </div>
-                        </div>
-                    {/each}
-                </div>
+                        {/each}
+                    </div>
 
-                <div class="flex flex-col w-full justify-between gap-6 flex-1"> 
-                    {#each weeklyProbabilityOfFrostBadges as w }
-                        <div>
-                            <span class={`${w.textColor} ${w.bg} text-sm px-2 py-1 rounded flex-0 font-medium`}>
-                                {Math.round(w.probabilityOfFrost)}%
-                            </span>
-                        </div>
-                    {/each}
-                </div>
-
-                <div class="flex flex-col w-full justify-between gap-6 flex-1"> 
-                    {#each precipWeeklySummary as p, idx}
-                        <div class="flex items-center gap-2 relative">
-                            <div class="text-sm font-medium text-blue-500">{Math.round(p.min)}</div>
-                            <div style={`width: ${PRECIP_WEEKLY_SUMMARY_BAR_HEIGHT}px;`} class="relative h-3 bg-slate-50 border border-slate-300 rounded-full">
-                                <div style={`left: ${p.bottom}px; right: ${p.top}px`} class="h-full bg-blue-200 absolute rounded-full"></div>
-                                <div style={`left: ${p.expectedPos}px;`} class="h-full w-2 border-2 border-white bg-blue-500 absolute rounded-full"></div>
-                                <!-- <div style={`left: ${p.expectedPos + 3.5}px; top: -5px`} class="w-1 h-2 border-l border-blue-500 absolute"></div> -->
+                    <div class="flex flex-col w-full justify-between gap-6 flex-1"> 
+                        {#each weeklyProbabilityOfFrostBadges as w }
+                            <div>
+                                <span class={`${w.textColor} ${w.bg} text-sm px-2 py-1 rounded flex-0 font-medium`}>
+                                    {Math.round(w.probabilityOfFrost)}%
+                                </span>
                             </div>
-                            <div style={`left: ${p.expectedPos + 18}px; top: -18px`} class="absolute text-sm font-medium text-blue-500">{Math.round(p.expected)}</div>    
-                            <div class="text-sm font-medium text-blue-500">{Math.round(p.max)}</div>
-                        </div>
-                    {/each}
-                </div>
+                        {/each}
+                    </div>
 
-            </div>
-            <!-- Frost -->
-            
-        </div>     
+                    <div class="flex flex-col w-full justify-between gap-6 flex-1"> 
+                        {#each precipWeeklySummary as p, idx}
+                            <div class="flex items-center gap-2 relative">
+                                <div class="text-sm font-medium text-blue-500">{Math.round(p.min)}</div>
+                                <div style={`width: ${PRECIP_WEEKLY_SUMMARY_BAR_HEIGHT}px;`} class="relative h-3 bg-slate-50 border border-slate-300 rounded-full">
+                                    <div style={`left: ${p.bottom}px; right: ${p.top}px`} class="h-full bg-blue-200 absolute rounded-full"></div>
+                                    <div style={`left: ${p.expectedPos}px;`} class="h-full w-2 border-2 border-white bg-blue-500 absolute rounded-full"></div>
+                                    <!-- <div style={`left: ${p.expectedPos + 3.5}px; top: -5px`} class="w-1 h-2 border-l border-blue-500 absolute"></div> -->
+                                </div>
+                                <div style={`left: ${p.expectedPos + 18}px; top: -18px`} class="absolute text-sm font-medium text-blue-500">{Math.round(p.expected)}</div>    
+                                <div class="text-sm font-medium text-blue-500">{Math.round(p.max)}</div>
+                            </div>
+                        {/each}
+                    </div>
+
+                </div>
+                <!-- Frost -->
+                
+            </div>     
+        {/if}
         <!-- <div class="p-4 bg-white rounded-xl col-span-3 flex flex-col shadow justify-between">
             <div class="grid gap-2">
                 <div class="uppercase text-slate-500 text-sm">Høyeste temperatur</div>
@@ -489,7 +492,7 @@
     
 
     {#if viewType === 'graph'}
-        <div class="p-4 rounded bg-white grid">
+        <div class="rounded bg-white grid">
         <div class="grid gap-4">
             <h3 class="font-medium text-slate-700">Sjanse for nedbør</h3>
                 <div class="flex justify-evenly ml-11">
@@ -618,7 +621,7 @@
 <!-- Daily temps-->
 {#if SHOW_DAILY_TEMPS && viewType == 'graph'}
         
-<div class="p-4 rounded bg-white gap-4 grid mt-8">
+<div class="rounded bg-white gap-4 grid mt-8">
     <h3 class="font-medium text-slate-700">Temperatur</h3>
 
     <div class="flex gap-4">
