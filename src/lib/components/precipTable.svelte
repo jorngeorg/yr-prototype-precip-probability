@@ -1,6 +1,6 @@
 <script>
     import {format, formatISO} from 'date-fns'
-    import nb from 'date-fns/locale/nb';
+    import nb from 'date-fns/locale/nb/index';
     export let days
     export let dates
 </script>

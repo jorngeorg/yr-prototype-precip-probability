@@ -3,7 +3,7 @@
     import { onMount } from "svelte";
     import { browser } from '$app/environment';  
     import { eachDayOfInterval, format, parseISO, add, isWeekend } from 'date-fns'
-    import { nb } from 'date-fns/locale'
+    import nb from 'date-fns/locale/nb/index';
     import classnames from 'classnames'
     import PrecipTable from "$lib/components/precipTable.svelte";
     export let data
